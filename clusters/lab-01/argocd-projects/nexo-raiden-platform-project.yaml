@@ -9,6 +9,8 @@ spec:
   sourceRepos:
     - https://github.com/nexoraiden/homelab-gitops.git
     - https://kubernetes.github.io/ingress-nginx
+    - https://helm.releases.hashicorp.com
+    - https://charts.external-secrets.io
 
   destinations:
     - namespace: monitoring
