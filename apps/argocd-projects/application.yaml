@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nexo-raiden-argocd-projects
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/nexoraiden/homelab-gitops.git
+    targetRevision: main
+    path: clusters/lab-01/argocd-projects
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
