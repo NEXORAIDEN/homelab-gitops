@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: monitoring-quota
+  namespace: monitoring
+spec:
+  hard:
+    requests.cpu: "1500m"
+    requests.memory: "2Gi"
+    limits.cpu: "3000m"
+    limits.memory: "4Gi"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: monitoring-default-limits
+  namespace: monitoring
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: "500m"
+        memory: "512Mi"
+      defaultRequest:
+        cpu: "100m"
+        memory: "128Mi"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: applications-quota
+  namespace: applications
+spec:
+  hard:
+    requests.cpu: "1500m"
+    requests.memory: "2Gi"
+    limits.cpu: "3000m"
+    limits.memory: "4Gi"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: applications-default-limits
+  namespace: applications
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: "500m"
+        memory: "512Mi"
+      defaultRequest:
+        cpu: "100m"
+        memory: "128Mi"
