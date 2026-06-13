@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nexo-raiden-keycloak
+  namespace: argocd
+spec:
+  project: nexo-raiden-platform
+  source:
+    repoURL: https://github.com/nexoraiden/homelab-gitops.git
+    targetRevision: main
+    path: infrastructure/platform/keycloak
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: platform
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
