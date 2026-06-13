@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nexo-raiden-postgresql
+  namespace: data
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nexo-raiden-postgresql
+  template:
+    metadata:
+      labels:
+        app: nexo-raiden-postgresql
+    spec:
+      containers:
+        - name: postgresql
+          image: postgres:16
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: nexo-raiden-postgresql-secret
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - nexo_admin
+                - -d
+                - nexo_platform
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - nexo_admin
+                - -d
+                - nexo_platform
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          volumeMounts:
+            - name: postgresql-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgresql-data
+          persistentVolumeClaim:
+            claimName: nexo-raiden-postgresql-pvc
