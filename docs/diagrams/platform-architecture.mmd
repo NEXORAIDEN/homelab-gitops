@@ -1,0 +1,59 @@
+flowchart TD
+    Dev[Developer / Platform Engineer] --> GitHub[GitHub]
+
+    GitHub --> InfraRepo[homelab-infrastructure<br/>Ansible + Terraform]
+    GitHub --> GitOpsRepo[homelab-gitops<br/>ArgoCD Applications]
+    GitHub --> BackendRepo[secure-banking-platform<br/>Java + Spring Boot]
+
+    InfraRepo --> Ubuntu[Ubuntu 24.04<br/>Raspberry Pi 5<br/>nexo-raiden-lab-01]
+    Ubuntu --> K3s[K3s Kubernetes]
+
+    GitOpsRepo --> ArgoCD[ArgoCD<br/>GitOps Controller]
+    ArgoCD --> K3s
+
+    K3s --> MonitoringNS[monitoring namespace]
+    MonitoringNS --> Prometheus[Prometheus]
+    MonitoringNS --> Grafana[Grafana]
+    MonitoringNS --> NodeExporter[Node Exporter]
+    MonitoringNS --> ELK[ELK Stack<br/>Elasticsearch + Logstash + Kibana]
+
+    K3s --> SecurityNS[security namespace]
+    SecurityNS --> Vault[Vault<br/>Secrets Management]
+    SecurityNS --> Trivy[Trivy<br/>Image Scanning]
+    SecurityNS --> Gatekeeper[OPA / Gatekeeper<br/>Policy Enforcement]
+    SecurityNS --> Cosign[Cosign<br/>Image Signing]
+
+    K3s --> PlatformNS[platform namespace]
+    PlatformNS --> Keycloak[Keycloak<br/>Identity and Access]
+    PlatformNS --> Ingress[Ingress Controller]
+    PlatformNS --> CertManager[cert-manager]
+
+    K3s --> DataNS[data namespace]
+    DataNS --> PostgreSQL[PostgreSQL]
+    DataNS --> RabbitMQ[RabbitMQ]
+    DataNS --> Kafka[Kafka optional]
+    DataNS --> MinIO[MinIO optional]
+
+    K3s --> AINS[ai namespace]
+    AINS --> Ollama[Ollama]
+    AINS --> Qdrant[Qdrant]
+    AINS --> RAG[RAG Service]
+
+    K3s --> AppsNS[applications namespace]
+    AppsNS --> AccountService[account-service<br/>Java 21 + Spring Boot 3]
+    AppsNS --> TransactionService[transaction-service<br/>Java 21 + Spring Boot 3]
+    AppsNS --> AuditService[audit-service<br/>Java 21 + Spring Boot 3]
+    AppsNS --> OpenAPI[OpenAPI Docs]
+    AppsNS --> Flyway[Flyway Migrations]
+    AppsNS --> Testcontainers[Testcontainers]
+
+    AccountService --> PostgreSQL
+    TransactionService --> PostgreSQL
+    TransactionService --> RabbitMQ
+    AuditService --> ELK
+    AccountService --> Keycloak
+    TransactionService --> Keycloak
+
+    Prometheus --> Grafana
+    NodeExporter --> Prometheus
+    ELK --> Kibana[Kibana Dashboards]
