@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nexo-raiden-grafana-ingress
+  namespace: argocd
+spec:
+  project: nexo-raiden-platform
+  source:
+    repoURL: https://github.com/nexoraiden/homelab-gitops.git
+    targetRevision: main
+    path: infrastructure/monitoring/grafana
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
