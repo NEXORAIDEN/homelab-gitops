@@ -2,6 +2,63 @@ flowchart TD
     Dev[Developer / Platform Engineer] --> GitHub[GitHub]
 
     GitHub --> InfraRepo[homelab-infrastructure<br/>Ansible + Terraform]
+    GitHub --> GitOpsRepo[homelab-gitops<br/>ArgoCD GitOps]
+    GitHub --> BackendRepo[secure-banking-platform<br/>Java 21 + Spring Boot 3]
+
+    InfraRepo --> Ubuntu[Ubuntu 24.04<br/>Raspberry Pi 5<br/>nexo-raiden-lab-01]
+    Ubuntu --> K3s[K3s Kubernetes]
+
+    GitOpsRepo --> ArgoCD[ArgoCD<br/>GitOps Controller]
+    ArgoCD --> K3s
+
+    Mac[MacBook Browser] --> Hosts[/etc/hosts<br/>*.nexo-raiden.local]
+    Hosts --> Ingress[Ingress NGINX<br/>NodePort 30080 / 30443]
+
+    K3s --> PlatformNS[platform namespace]
+    PlatformNS --> Ingress
+    PlatformNS --> Keycloak[Keycloak<br/>Identity Provider]
+
+    K3s --> DataNS[data namespace]
+    DataNS --> PostgreSQL[PostgreSQL<br/>PersistentVolumeClaim]
+
+    K3s --> SecurityNS[security namespace]
+    SecurityNS --> Vault[Vault<br/>Secrets Management]
+    SecurityNS --> ESO[External Secrets Operator]
+    Vault --> ESO
+
+    ESO --> K8sSecrets[Kubernetes Secrets]
+    K8sSecrets --> Keycloak
+    Keycloak --> PostgreSQL
+
+    Ingress --> Keycloak
+
+    K3s --> MonitoringNS[monitoring namespace<br/>future in-cluster observability]
+    MonitoringNS --> Prometheus[Prometheus]
+    MonitoringNS --> Grafana[Grafana]
+    MonitoringNS --> ELK[ELK Stack<br/>Elasticsearch + Logstash + Kibana]
+
+    K3s --> AppsNS[applications namespace]
+    AppsNS --> AccountService[account-service<br/>Java 21 + Spring Boot 3]
+    AppsNS --> TransactionService[transaction-service]
+    AppsNS --> AuditService[audit-service]
+
+    AccountService --> Keycloak
+    AccountService --> PostgreSQL
+    TransactionService --> PostgreSQL
+    AuditService --> ELK
+
+    K3s --> AINS[ai namespace]
+    AINS --> Ollama[Ollama]
+    AINS --> Qdrant[Qdrant]
+    AINS --> RAG[RAG Service]
+
+    Future[AWS / Multi-Cloud Future] --> EKS[AWS EKS]
+    Future --> MultiCloud[Multi-Cloud Kubernetes]
+    ArgoCD --> EKS
+    ArgoCD --> MultiCloudflowchart TD
+    Dev[Developer / Platform Engineer] --> GitHub[GitHub]
+
+    GitHub --> InfraRepo[homelab-infrastructure<br/>Ansible + Terraform]
     GitHub --> GitOpsRepo[homelab-gitops<br/>ArgoCD Applications]
     GitHub --> BackendRepo[secure-banking-platform<br/>Java + Spring Boot]
 
