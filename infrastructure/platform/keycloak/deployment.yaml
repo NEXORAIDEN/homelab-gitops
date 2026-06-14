@@ -22,7 +22,7 @@ spec:
             - name: KC_PROXY_HEADERS
               value: xforwarded
             - name: KC_HOSTNAME
-              value: keycloak.nexo-raiden.local
+              value: https://keycloak.nexo-raiden.local:30443
             - name: KC_HTTP_ENABLED
               value: "true"
             - name: KC_DB
