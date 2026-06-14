@@ -3,6 +3,29 @@ kind: Ingress
 metadata:
   name: nexo-raiden-keycloak
   namespace: platform
+  annotations:
+    cert-manager.io/cluster-issuer: nexo-raiden-selfsigned
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - keycloak.nexo-raiden.local
+      secretName: keycloak-nexo-raiden-local-tls
+  rules:
+    - host: keycloak.nexo-raiden.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nexo-raiden-keycloak
+                port:
+                  number: 8080apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nexo-raiden-keycloak
+  namespace: platform
 spec:
   ingressClassName: nginx
   rules:
