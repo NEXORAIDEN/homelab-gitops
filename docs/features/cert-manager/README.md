@@ -1,4 +1,87 @@
-# cert-manager
+# cert-manager Architecture
+
+## Current Architecture
+
+Ingress
+    │
+    ▼
+Certificate Request
+    │
+    ▼
+cert-manager
+    │
+    ▼
+ClusterIssuer
+    │
+    ▼
+TLS Secret
+    │
+    ▼
+Ingress NGINX
+
+---
+
+# Current Flow
+
+Keycloak Ingress
+
+↓
+
+cert-manager Annotation
+
+↓
+
+ClusterIssuer
+
+↓
+
+Certificate
+
+↓
+
+TLS Secret
+
+↓
+
+Ingress HTTPS
+
+---
+
+# Kubernetes Resources
+
+ClusterIssuer
+
+Purpose:
+
+Certificate authority definition
+
+---
+
+Certificate
+
+Purpose:
+
+Certificate request
+
+---
+
+Secret
+
+Purpose:
+
+TLS storage
+
+---
+
+# Current ClusterIssuer
+
+Name:
+
+nexo-raiden-selfsigned
+
+Type:
+
+SelfSigned# cert-manager
 
 ## Purpose
 
