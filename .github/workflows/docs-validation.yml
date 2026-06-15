@@ -1,0 +1,26 @@
+name: Documentation Validation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  docs:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Verify Architecture Docs
+        run: |
+
+          test -f docs/architecture/platform-topology.md
+          test -f docs/architecture/security.md
+          test -f docs/architecture/networking.md
+          test -f docs/architecture/gitops.md
+          test -f docs/architecture/data-layer.md

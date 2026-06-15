@@ -1,0 +1,32 @@
+name: GitOps Validation
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+jobs:
+  validate:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Validate Kubernetes YAML
+        run: |
+          find . -name "*.yaml" -o -name "*.yml"
+
+      - name: Verify Repository Structure
+        run: |
+          test -d apps
+          test -d infrastructure
+          test -d clusters
+          test -d docs
