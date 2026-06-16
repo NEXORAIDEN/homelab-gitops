@@ -14,7 +14,7 @@ spec:
     - https://charts.jetstack.io
     - https://prometheus-community.github.io/helm-charts
     - https://charts.bitnami.com/bitnami
-    - git@github.com:NEXORAIDEN/homelab-gitops.git
+    - git@github.com/nexoraiden/homelab-gitops.git
 
   destinations:
     - namespace: monitoring

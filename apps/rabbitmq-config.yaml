@@ -6,7 +6,7 @@ metadata:
 spec:
   project: nexo-raiden-platform
   source:
-    repoURL: git@github.com:NEXORAIDEN/homelab-gitops.git
+    repoURL: git@github.com/nexoraiden/homelab-gitops.git
     targetRevision: main
     path: infrastructure/messaging/rabbitmq
   destination:
