@@ -48,7 +48,7 @@ spec:
                 memory: 256Mi
 
         prometheus-node-exporter:
-          enabled: true
+          enabled: false
 
         kube-state-metrics:
           enabled: true
