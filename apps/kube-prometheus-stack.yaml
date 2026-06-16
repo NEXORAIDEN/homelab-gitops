@@ -47,7 +47,7 @@ spec:
                 cpu: 200m
                 memory: 256Mi
 
-        prometheus-node-exporter:
+        nodeExporter:
           enabled: false
 
         kube-state-metrics:
