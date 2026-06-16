@@ -1,32 +1,41 @@
 name: GitOps Validation
 
 on:
+  pull_request:
   push:
     branches:
       - main
 
-  pull_request:
-
 jobs:
   validate:
-
+    name: Validate GitOps Repository
     runs-on: ubuntu-latest
 
     steps:
-
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v4
-
-      - name: Validate Kubernetes YAML
-        run: |
-          find . -name "*.yaml" -o -name "*.yml"
-
-      - name: Verify Repository Structure
+      - name: Verify repository structure
         run: |
           test -d apps
           test -d infrastructure
           test -d clusters
           test -d docs
+
+      - name: Verify architecture documentation
+        run: |
+          test -f docs/architecture/platform-topology.md
+          test -f docs/architecture/security.md
+          test -f docs/architecture/gitops.md
+          test -f docs/architecture/networking.md
+          test -f docs/architecture/data-layer.md
+          test -f docs/architecture/ci-cd.md
+
+      - name: List YAML files
+        run: |
+          find . -type f \( -name "*.yaml" -o -name "*.yml" \)
+
+      - name: Validate YAML syntax
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: .

@@ -1,270 +1,343 @@
-# NEXO-RAIDEN GitOps Architecture
+# GitOps Architecture
 
 ## Document Information
 
-| Attribute     | Value                  |
-| ------------- | ---------------------- |
-| Document Type | Architecture Reference |
-| Domain        | GitOps                 |
-| Platform      | NEXO-RAIDEN            |
-| GitOps Engine | ArgoCD                 |
-| Repository    | homelab-gitops         |
-| Kubernetes    | K3s                    |
-| Environment   | Raspberry Pi 5         |
+| Attribute     | Value                                                |
+| ------------- | ---------------------------------------------------- |
+| Document Name | GitOps Architecture                                  |
+| Platform      | NEXO-RAIDEN                                          |
+| GitOps Engine | ArgoCD                                               |
+| Repository    | homelab-gitops                                       |
+| Environment   | K3s                                                  |
+| Purpose       | Define how platform changes are deployed and managed |
 
 ---
 
-# 1. Purpose
+# Executive Summary
 
-This document describes the GitOps architecture of the NEXO-RAIDEN platform.
+GitOps is the operational model used by NEXO-RAIDEN.
 
-It explains:
+The Git repository is the single source of truth.
 
-* Desired state management
-* Application deployment
-* Infrastructure deployment
-* Drift detection
-* Self-healing
-* Repository structure
-* ArgoCD architecture
-* Future multi-cluster strategy
+No platform component should be modified manually if the change can be represented in Git.
 
----
+The objective is:
 
-# 2. GitOps Objectives
-
-The platform follows GitOps principles.
-
-Goals:
-
-* Declarative infrastructure
-* Auditable changes
-* Automated deployments
-* Self-healing systems
-* Reproducible environments
-* Disaster recovery
+* Consistency
+* Repeatability
+* Auditability
+* Security
+* Self-Healing
 
 ---
 
-# 3. What Is GitOps?
+# Why GitOps Exists
 
-GitOps is an operational model where Git becomes the source of truth.
+## Traditional Operations
 
-Traditional Operations:
-
+```text
 Engineer
 ↓
 kubectl apply
 ↓
-Cluster
+Cluster Changes
+↓
+Nobody Knows What Changed
+```
 
 Problems:
 
-* Drift
-* Manual changes
-* Limited traceability
+* Configuration drift
+* Manual errors
+* No audit trail
+* Difficult recovery
 
-GitOps:
+---
 
-Git
+## GitOps Operations
+
+```text
+Engineer
 ↓
-ArgoCD
+Git Commit
 ↓
-Cluster
+Git Push
+↓
+ArgoCD Detects Change
+↓
+Cluster Updated
+```
 
 Benefits:
 
 * Traceability
-* Auditability
-* Repeatability
+* Recovery
+* Versioning
 * Automation
 
 ---
 
-# 4. Source of Truth
+# GitOps Principles
 
-Primary Source:
+## Git is the Source of Truth
 
-Git Repository
-
-Repository:
-
-homelab-gitops
-
-All infrastructure must originate from Git.
-
-Direct cluster modifications are considered configuration drift.
-
----
-
-# 5. GitOps Control Plane
-
-Current Control Plane:
-
-ArgoCD
-
-Namespace:
-
-argocd
-
-Responsibilities:
-
-* Reconciliation
-* Drift Detection
-* Automated Sync
-* Self-Healing
-* Application Management
-
----
-
-# 6. Repository Architecture
-
-Current Repository Structure
-
-homelab-gitops/
-
-├── apps/
-├── clusters/
-├── infrastructure/
-├── docs/
-
-Purpose:
-
-Clear separation of responsibilities.
-
----
-
-# 7. apps Directory
-
-Purpose:
-
-Application definitions.
-
-Contains:
-
-apps/
-
-├── ingress-nginx.yaml
-├── vault.yaml
-├── external-secrets.yaml
-├── cert-manager.yaml
-├── keycloak.yaml
-├── postgresql.yaml
-
-Responsibilities:
-
-* Helm deployments
-* ArgoCD applications
-* Platform services
-
----
-
-# 8. clusters Directory
-
-Purpose:
-
-Cluster-specific configuration.
-
-Current:
-
-clusters/lab-01/
-
-Contains:
-
-* AppProjects
-* Root Applications
-* Cluster configuration
-
-Benefits:
-
-Supports future multi-cluster environments.
-
----
-
-# 9. infrastructure Directory
-
-Purpose:
-
-Workload manifests.
+Everything must originate from Git.
 
 Examples:
 
-infrastructure/
+* Applications
+* Namespaces
+* Certificates
+* Secrets Configuration
+* Networking
+* Monitoring
 
+---
+
+## Declarative Infrastructure
+
+Infrastructure describes desired state.
+
+Example:
+
+```yaml
+replicas: 1
+```
+
+The cluster continuously reconciles itself to match Git.
+
+---
+
+## Self-Healing
+
+ArgoCD continuously checks:
+
+```text
+Git
+vs
+Cluster
+```
+
+If drift is detected:
+
+```text
+ArgoCD
+↓
+Automatic Correction
+```
+
+---
+
+# Architecture Overview
+
+```text
+GitHub
+    │
+    ▼
+Git Repository
+    │
+    ▼
+ArgoCD
+    │
+    ▼
+Kubernetes API
+    │
+    ▼
+Cluster Resources
+```
+
+---
+
+# Repository Structure
+
+## Root Layout
+
+```text
+homelab-gitops/
+│
+├── apps/
+├── infrastructure/
+├── clusters/
+├── docs/
+└── backups/
+```
+
+---
+
+## apps/
+
+Purpose:
+
+ArgoCD Application definitions.
+
+Examples:
+
+```text
+apps/
+├── vault.yaml
+├── keycloak.yaml
+├── postgresql.yaml
+├── cert-manager.yaml
+```
+
+Each file defines how ArgoCD deploys a platform component.
+
+---
+
+## infrastructure/
+
+Purpose:
+
+Actual Kubernetes resources.
+
+Examples:
+
+```text
+infrastructure/
+├── security/
 ├── platform/
 ├── data/
-├── security/
+```
 
 Contains:
 
 * Deployments
 * Services
 * Ingresses
-* ExternalSecrets
-* Certificates
+* Secrets References
+* PVCs
 
 ---
 
-# 10. Documentation Directory
+## clusters/
 
 Purpose:
 
-Architecture and operational documentation.
+Cluster-specific configuration.
+
+Examples:
+
+```text
+clusters/lab-01/
+```
 
 Contains:
 
-* Architecture Guides
-* Runbooks
-* Feature Documentation
-* Recovery Procedures
+* AppProjects
+* Root Applications
+* Environment configuration
 
 ---
 
-# 11. ArgoCD Architecture
+# ArgoCD Architecture
 
-GitHub
-↓
-ArgoCD
-↓
-Kubernetes API
-↓
-Cluster Resources
+## Current Components
 
-ArgoCD continuously reconciles the cluster.
-
----
-
-# 12. Application Hierarchy
-
-Root Application
-
-↓
-
-Project Applications
-
-↓
-
-Platform Applications
-
-Current Example:
-
-Root
-↓
-Project
-↓
-Vault
-↓
-External Secrets
-↓
-Keycloak
-↓
-PostgreSQL
+```text
+argocd-server
+argocd-repo-server
+argocd-application-controller
+argocd-applicationset-controller
+argocd-dex
+argocd-redis
+```
 
 ---
 
-# 13. Application Lifecycle
+## Responsibilities
 
-Developer
+### argocd-server
+
+User interface and API.
+
+### repo-server
+
+Reads Git repositories.
+
+### application-controller
+
+Performs reconciliation.
+
+### applicationset-controller
+
+Generates applications dynamically.
+
+---
+
+# Current Platform Applications
+
+Document every application.
+
+## nexo-raiden-vault
+
+Purpose:
+
+Secret Management.
+
+Dependencies:
+
+* Namespace
+* Storage
+
+---
+
+## nexo-raiden-external-secrets
+
+Purpose:
+
+Synchronize Vault secrets.
+
+Dependencies:
+
+* Vault
+
+---
+
+## nexo-raiden-cert-manager
+
+Purpose:
+
+Certificate lifecycle.
+
+Dependencies:
+
+* Kubernetes CRDs
+
+---
+
+## nexo-raiden-postgresql
+
+Purpose:
+
+Persistent data storage.
+
+Dependencies:
+
+* PVC
+* External Secrets
+
+---
+
+## nexo-raiden-keycloak
+
+Purpose:
+
+Identity Provider.
+
+Dependencies:
+
+* PostgreSQL
+* External Secrets
+* cert-manager
+
+---
+
+# GitOps Deployment Flow
+
+## Infrastructure Change
+
+```text
+Engineer
 ↓
 Git Commit
 ↓
@@ -272,235 +345,216 @@ Git Push
 ↓
 GitHub
 ↓
-ArgoCD Detects Change
+ArgoCD Sync
 ↓
-Sync
-↓
-Cluster Updated
+Cluster Update
+```
 
 ---
 
-# 14. Drift Detection
+## Secret Change
 
+```text
+Vault
+↓
+External Secrets
+↓
+Kubernetes Secret
+↓
+Application
+```
+
+---
+
+## Certificate Change
+
+```text
+Ingress
+↓
+cert-manager
+↓
+Certificate
+↓
+TLS Secret
+↓
+HTTPS
+```
+
+---
+
+# Drift Management
+
+## Definition
+
+Drift occurs when:
+
+```text
+Git State
+≠
+Cluster State
+```
+
+---
+
+## Detection
+
+ArgoCD continuously compares:
+
+```text
 Desired State
-
-↓
-
-Git
-
+vs
 Actual State
-
-↓
-
-Cluster
-
-ArgoCD compares both continuously.
-
-If differences exist:
-
-OutOfSync
-
-Status is generated.
+```
 
 ---
 
-# 15. Self-Healing
+## Examples
 
-If a resource is manually modified:
+### Manual kubectl change
 
-Cluster
+ArgoCD restores Git version.
+
+### Deleted resource
+
+ArgoCD recreates resource.
+
+### Configuration mismatch
+
+ArgoCD re-syncs.
+
+---
+
+# Failure Scenarios
+
+## GitHub Failure
+
+Impact:
+
+No new deployments.
+
+Existing workloads continue.
+
+---
+
+## ArgoCD Failure
+
+Impact:
+
+No synchronization.
+
+Existing workloads continue.
+
+---
+
+## Cluster Failure
+
+Impact:
+
+Platform unavailable.
+
+Recovery:
+
+cluster-recovery.md
+
+---
+
+# Operational Procedures
+
+## Check Application Status
+
+```bash
+kubectl get applications -n argocd
+```
+
+---
+
+## Refresh Application
+
+```bash
+kubectl annotate application APP_NAME \
+  -n argocd \
+  argocd.argoproj.io/refresh=hard
+```
+
+---
+
+## Sync Application
+
+```bash
+kubectl patch application APP_NAME \
+  -n argocd \
+  --type merge \
+  -p '{"operation":{"sync":{"prune":true}}}'
+```
+
+---
+
+# Best Practices
+
+## Required
+
+* Git-first changes
+* Pull requests
+* Documentation updates
+* Small commits
+
+---
+
+## Avoid
+
+* Manual resource changes
+* Direct secret creation
+* Untracked deployments
+
+---
+
+# Future Evolution
+
+## Current
+
+GitHub + ArgoCD
+
+---
+
+## Future
+
+GitHub Actions
 ↓
-Drift Detected
+Container Registry
+↓
+GitOps Promotion
+↓
+ArgoCD
+
+---
+
+## AWS
+
+GitHub
+↓
+GitHub Actions
+↓
+ECR
 ↓
 ArgoCD
 ↓
-Reconciliation
-↓
-Desired State Restored
-
-Benefits:
-
-* Consistency
-* Reliability
-* Auditability
+EKS
 
 ---
 
-# 16. Security Model
+# Related Documentation
 
-GitOps Security Controls
-
-* Source Repository Restrictions
-* Namespace Restrictions
-* Project Boundaries
-* RBAC
-* Immutable History
-
-Current AppProject:
-
-nexo-raiden-platform
-
-Controls:
-
-* Allowed repositories
-* Allowed namespaces
-* Allowed cluster resources
+* platform-topology.md
+* ci-cd.md
+* security.md
+* cluster-recovery.md
+* backup-strategy.md
 
 ---
 
-# 17. Deployment Strategy
+# Summary
 
-Current:
+GitOps is the operational foundation of NEXO-RAIDEN.
 
-Automatic Sync
+All infrastructure changes originate from Git, are reconciled by ArgoCD, and are continuously validated against the desired platform state.
 
-Automatic Prune
-
-Self Heal
-
-Benefits:
-
-* Reduced operations effort
-* Faster recovery
-* Consistent deployments
-
----
-
-# 18. Operational Procedures
-
-Verify Applications
-
-kubectl get applications -n argocd
-
-Expected:
-
-Synced
-Healthy
-
----
-
-Verify Application
-
-kubectl get application APP_NAME -n argocd
-
----
-
-Inspect Application
-
-kubectl describe application APP_NAME -n argocd
-
----
-
-Check ArgoCD Pods
-
-kubectl get pods -n argocd
-
----
-
-# 19. Disaster Recovery
-
-Git is the recovery source.
-
-Recovery Flow:
-
-New Cluster
-↓
-Install ArgoCD
-↓
-Deploy Root Application
-↓
-Automatic Rebuild
-
-Benefits:
-
-Infrastructure rebuild within minutes.
-
----
-
-# 20. Current Applications
-
-Infrastructure Layer
-
-* Ingress NGINX
-* Vault
-* External Secrets
-* cert-manager
-
-Platform Layer
-
-* Keycloak
-
-Data Layer
-
-* PostgreSQL
-
----
-
-# 21. Known Limitations
-
-Current:
-
-* Single Cluster
-* Local GitHub Dependency
-* No Multi-Cluster Management
-* No Progressive Delivery
-
----
-
-# 22. Future GitOps Roadmap
-
-Phase 1
-
-✓ ArgoCD
-✓ GitOps Repository
-✓ Auto Sync
-✓ Self Heal
-
-Phase 2
-
-□ ArgoCD SSO
-□ HTTPS Access
-□ RBAC Hardening
-
-Phase 3
-
-□ Multi-Cluster GitOps
-□ Progressive Delivery
-□ Blue/Green Deployments
-
-Phase 4
-
-□ AWS EKS
-□ Multi-Cloud Deployments
-
----
-
-# 23. AWS Mapping
-
-| Current      | AWS                |
-| ------------ | ------------------ |
-| K3s          | EKS                |
-| ArgoCD       | ArgoCD             |
-| GitHub       | GitHub             |
-| NodePort     | ALB                |
-| Raspberry Pi | AWS Infrastructure |
-
----
-
-# 24. GitOps Architecture Summary
-
-The NEXO-RAIDEN platform uses GitOps as the primary operational model.
-
-Git serves as the source of truth.
-
-ArgoCD enforces desired state.
-
-This provides:
-
-* Consistency
-* Automation
-* Recoverability
-* Auditability
-* Cloud Portability
-
-and forms the foundation of all platform operations.
