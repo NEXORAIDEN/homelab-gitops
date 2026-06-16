@@ -1,0 +1,51 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nexo-raiden-rabbitmq
+  namespace: argocd
+spec:
+  project: nexo-raiden-platform
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: rabbitmq
+    targetRevision: 15.3.4
+    helm:
+      releaseName: rabbitmq
+      values: |
+        fullnameOverride: nexo-raiden-rabbitmq
+
+        replicaCount: 1
+
+        auth:
+          username: nexo_admin
+          existingPasswordSecret: nexo-raiden-rabbitmq-secret
+          existingSecretPasswordKey: RABBITMQ_PASSWORD
+
+        persistence:
+          enabled: true
+          size: 5Gi
+          storageClass: local-path
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+
+        metrics:
+          enabled: true
+          serviceMonitor:
+            enabled: true
+            namespace: monitoring
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: messaging
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
