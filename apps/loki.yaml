@@ -39,10 +39,27 @@ spec:
           resources:
             requests:
               cpu: 100m
-              memory: 512Mi
+              memory: 384Mi
             limits:
-              cpu: 500m
-              memory: 1Gi
+              cpu: 300m
+              memory: 768Mi
+          extraContainers: []
+
+        sidecar:
+          rules:
+            enabled: false
+
+        chunksCache:
+          enabled: false
+
+        resultsCache:
+          enabled: false
+
+        lokiCanary:
+          enabled: false
+
+        test:
+          enabled: false
 
         gateway:
           enabled: false
