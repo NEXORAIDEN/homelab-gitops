@@ -11,9 +11,9 @@ spec:
     targetRevision: 66.3.1
     helm:
       releaseName: kube-prometheus-stack
+      skipCrds: true
       values: |
         fullnameOverride: nexo-raiden-monitoring
-
         prometheus:
           prometheusSpec:
             retention: 7d
