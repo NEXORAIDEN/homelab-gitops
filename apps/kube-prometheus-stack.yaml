@@ -28,6 +28,8 @@ spec:
         grafana:
           enabled: true
           adminPassword: admin
+          deploymentStrategy:
+            type: Recreate
           resources:
             requests:
               cpu: 100m
